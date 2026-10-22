@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-lg-8">
+            <div class="text-center text-white">
+                <h1 class="display-3 fw-bold mb-4">
+                    <i class="fas fa-user-graduate me-3"></i>Attendance Management System
+                </h1>
+                <p class="lead fs-4 mb-5">
+                    A comprehensive solution for tracking and managing attendance in educational institutions
+                </p>
+                
+                {% if user.is_authenticated %}
+                    <div class="card border-0 shadow-lg mb-5">
+                        <div class="card-body p-5">
+                            <h2 class="card-title mb-4">
+                                <i class="fas fa-user-circle me-2 text-primary"></i>Welcome, {{ user.username }}!
+                            </h2>
+                            <p class="card-text fs-5 mb-4">
+                                You are logged in as <span class="badge bg-primary">{{ user.get_user_type_display }}</span>
+                            </p>
+                            
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                                {% if user.user_type == 'faculty' %}
+                                    <a class="btn btn-primary btn-lg rounded-pill px-4 py-3" href="{% url 'faculty_dashboard' %}">
+                                        <i class="fas fa-chalkboard-teacher me-2"></i>Faculty Dashboard
+                                    </a>
+                                {% elif user.user_type == 'dean' %}
+                                    <a class="btn btn-success btn-lg rounded-pill px-4 py-3" href="{% url 'dean_dashboard' %}">
+                                        <i class="fas fa-user-tie me-2"></i>Dean Dashboard
+                                    </a>
+                                {% elif user.user_type == 'student' %}
+                                    <a class="btn btn-info btn-lg rounded-pill px-4 py-3" href="{% url 'student_dashboard' %}">
+                                        <i class="fas fa-user-graduate me-2"></i>Student Dashboard
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Direct login option without "Access Required" message -->
+                <div class="d-grid mb-5">
+                    <a class="btn btn-primary btn-lg rounded-pill px-4 py-3" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login to Access System
+                    </a>
+                </div>
+                
+                <div class="row g-4 mt-5">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-chalkboard-teacher fa-lg"></i>
+                                </div>
+                                <h5 class="card-title">Faculty</h5>
+                                <p class="card-text">Upload attendance, generate reports, and communicate with students.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user-tie fa-lg"></i>
+                                </div>
+                                <h5 class="card-title">Dean</h5>
+                                <p class="card-text">Monitor institution-wide attendance and generate analytics.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user-graduate fa-lg"></i>
+                                </div>
+                                <h5 class="card-title">Student</h5>
+                                <p class="card-text">View personal attendance records and receive notifications.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        min-height: 100vh;
+    }
+    
+    .card {
+        backdrop-filter: blur(10px);
+        background-color: rgba(255, 255, 255, 0.85);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}

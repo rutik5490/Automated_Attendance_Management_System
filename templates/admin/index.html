@@ -1,0 +1,255 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+        <div class="badge bg-primary bg-gradient fs-6">Administrator Access</div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary text-white">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number text-primary">156</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success text-white">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-number text-success">2,847</div>
+                <div class="stat-label">Attendance Records</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-info text-white">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-number text-info">89</div>
+                <div class="stat-label">Messages Sent</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning text-white">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-number text-warning">12</div>
+                <div class="stat-label">Low Attendance</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h5 class="mb-0"><i class="fas fa-th-large me-2"></i>System Modules</h5>
+        </div>
+        <div class="admin-card-body p-4">
+            <div class="app-grid">
+                <!-- Users App -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class="fas fa-users me-2"></i>Users
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'admin:users_user_changelist' %}"><i class="fas fa-user"></i> All Users</a></li>
+                            <li><a href="{% url 'admin:users_faculty_changelist' %}"><i class="fas fa-chalkboard-teacher"></i> Faculty</a></li>
+                            <li><a href="{% url 'admin:users_dean_changelist' %}"><i class="fas fa-user-tie"></i> Dean</a></li>
+                            <li><a href="{% url 'admin:users_student_changelist' %}"><i class="fas fa-user-graduate"></i> Students</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Attendance App -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <i class="fas fa-clipboard-list me-2"></i>Attendance
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'admin:attendance_class_changelist' %}"><i class="fas fa-school"></i> Classes</a></li>
+                            <li><a href="{% url 'admin:attendance_subject_changelist' %}"><i class="fas fa-book"></i> Subjects</a></li>
+                            <li><a href="{% url 'admin:attendance_studentenrollment_changelist' %}"><i class="fas fa-user-plus"></i> Enrollments</a></li>
+                            <li><a href="{% url 'admin:attendance_attendancerecord_changelist' %}"><i class="fas fa-clipboard-check"></i> Records</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- ERP App -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);">
+                        <i class="fas fa-building me-2"></i>ERP System
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'admin:erp_department_changelist' %}"><i class="fas fa-sitemap"></i> Departments</a></li>
+                            <li><a href="{% url 'admin:erp_course_changelist' %}"><i class="fas fa-book"></i> Courses</a></li>
+                            <li><a href="{% url 'admin:erp_semester_changelist' %}"><i class="fas fa-calendar-alt"></i> Semesters</a></li>
+                            <li><a href="{% url 'admin:erp_classroom_changelist' %}"><i class="fas fa-door-open"></i> Classrooms</a></li>
+                            <li><a href="{% url 'admin:erp_resource_changelist' %}"><i class="fas fa-box"></i> Resources</a></li>
+                            <li><a href="{% url 'admin:erp_schedule_changelist' %}"><i class="fas fa-clock"></i> Schedules</a></li>
+                            <li><a href="{% url 'admin:erp_enrollment_changelist' %}"><i class="fas fa-user-graduate"></i> Enrollments</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- LMS App -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);">
+                        <i class="fas fa-laptop me-2"></i>LMS System
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'admin:lms_module_changelist' %}"><i class="fas fa-th-large"></i> Modules</a></li>
+                            <li><a href="{% url 'admin:lms_lesson_changelist' %}"><i class="fas fa-book-open"></i> Lessons</a></li>
+                            <li><a href="{% url 'admin:lms_assignment_changelist' %}"><i class="fas fa-tasks"></i> Assignments</a></li>
+                            <li><a href="{% url 'admin:lms_quiz_changelist' %}"><i class="fas fa-question-circle"></i> Quizzes</a></li>
+                            <li><a href="{% url 'admin:lms_discussionforum_changelist' %}"><i class="fas fa-comments"></i> Forums</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Notifications App -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'admin:notifications_whatsappmessage_changelist' %}"><i class="fas fa-comments"></i> WhatsApp Messages</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Management Commands -->
+                <div class="app-card">
+                    <div class="app-card-header" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);">
+                        <i class="fas fa-cogs me-2"></i>Management
+                    </div>
+                    <div class="app-card-body">
+                        <ul class="app-list">
+                            <li><a href="{% url 'attendance:sync_external_data' %}"><i class="fas fa-sync"></i> Sync External Data</a></li>
+                            <li><a href="{% url 'attendance:generate_reports' %}"><i class="fas fa-file-export"></i> Generate Reports</a></li>
+                            <li><a href="{% url 'attendance:send_alerts' %}"><i class="fas fa-bell"></i> Send Alerts</a></li>
+                            <li><a href="{% url 'attendance:database_backup' %}"><i class="fas fa-database"></i> Database Backup</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-lg-6">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Recent Activity</h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-primary bg-gradient text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">New Student Registered</h6>
+                                    <p class="mb-1">John Doe (Roll No: 101) enrolled in Computer Science</p>
+                                    <small class="text-muted">2 minutes ago</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-success bg-gradient text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-clipboard-check"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Attendance Uploaded</h6>
+                                    <p class="mb-1">Faculty uploaded attendance for Python Programming</p>
+                                    <small class="text-muted">15 minutes ago</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle bg-info bg-gradient text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Message Sent</h6>
+                                    <p class="mb-1">WhatsApp alert sent to 3 students for low attendance</p>
+                                    <small class="text-muted">1 hour ago</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>System Overview</h5>
+                </div>
+                <div class="admin-card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-primary text-white">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <div class="stat-number text-primary">24</div>
+                                <div class="stat-label">Faculty</div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-success text-white">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <div class="stat-number text-success">156</div>
+                                <div class="stat-label">Students</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-info text-white">
+                                    <i class="fas fa-school"></i>
+                                </div>
+                                <div class="stat-number text-info">8</div>
+                                <div class="stat-label">Classes</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-icon bg-warning text-white">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="stat-number text-warning">32</div>
+                                <div class="stat-label">Subjects</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

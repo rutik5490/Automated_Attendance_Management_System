@@ -1,0 +1,265 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Sync External Data{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .search-bar {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+    
+    .search-input {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 8px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .admin-card-body {
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-sync me-2"></i>Sync External Data</h2>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-database me-2"></i>External Data Synchronization</span>
+                <button type="submit" class="btn btn-success" form="sync-form">
+                    <i class="fas fa-sync me-1"></i>Start Sync Process
+                </button>
+            </div>
+        </div>
+        <div class="p-4">
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary text-white">
+                            <i class="fas fa-sync"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Last Sync</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success text-white">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Records Synced</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-info text-white">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Sync Errors</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <i class="fas fa-info-circle position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            <div class="search-input ps-5">
+                                <h5><i class="fas fa-info-circle me-2"></i>About External Data Sync</h5>
+                                <p class="mb-0">This tool allows you to synchronize attendance data from external sources such as CSV files or other database systems.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="fas fa-question-circle me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <button class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i>Export Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sync Form -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Sync Configuration</h5>
+                </div>
+                <div class="admin-card-body p-4">
+                    <form method="post" id="sync-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Sync Method</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sync_method" id="csv_sync" value="csv" checked>
+                                <label class="form-check-label" for="csv_sync">
+                                    <i class="fas fa-file-csv me-1"></i>CSV File Import
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sync_method" id="db_sync" value="database">
+                                <label class="form-check-label" for="db_sync">
+                                    <i class="fas fa-database me-1"></i>Database Connection
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="csv_file" class="form-label">CSV File</label>
+                            <input class="form-control" type="file" id="csv_file" accept=".csv">
+                            <div class="form-text">Upload a CSV file with attendance data</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="db_connection" class="form-label">Database Connection String</label>
+                            <input type="text" class="form-control" id="db_connection" placeholder="postgresql://user:password@host:port/database">
+                            <div class="form-text">Connection string for external database</div>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="overwrite_existing" name="overwrite">
+                            <label class="form-check-label" for="overwrite_existing">
+                                Overwrite existing records
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sync me-1"></i>Start Sync Process
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Sync Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li>Sync attendance records from external databases</li>
+                    <li>Import data from CSV files</li>
+                    <li>Merge with existing records</li>
+                    <li>Support for various database formats</li>
+                    <li>Automatic conflict resolution</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle form fields based on sync method
+    const csvSync = document.getElementById('csv_sync');
+    const dbSync = document.getElementById('db_sync');
+    const csvFileField = document.getElementById('csv_file').closest('.mb-4');
+    const dbConnectionField = document.getElementById('db_connection').closest('.mb-4');
+    
+    function toggleFields() {
+        if (csvSync.checked) {
+            csvFileField.style.display = 'block';
+            dbConnectionField.style.display = 'none';
+        } else {
+            csvFileField.style.display = 'none';
+            dbConnectionField.style.display = 'block';
+        }
+    }
+    
+    csvSync.addEventListener('change', toggleFields);
+    dbSync.addEventListener('change', toggleFields);
+    
+    // Initialize
+    toggleFields();
+});
+</script>
+{% endblock %}

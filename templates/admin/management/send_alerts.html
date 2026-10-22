@@ -1,0 +1,270 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Send Alerts{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .search-bar {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+    
+    .search-input {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 8px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .admin-card-body {
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-bell me-2"></i>Send Alerts</h2>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-exclamation-triangle me-2"></i>Alert Management</span>
+                <button type="submit" class="btn btn-success" form="alert-form">
+                    <i class="fas fa-paper-plane me-1"></i>Send Alerts
+                </button>
+            </div>
+        </div>
+        <div class="p-4">
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary text-white">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Alerts Sent</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success text-white">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Delivered</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-info text-white">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Failed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <i class="fas fa-info-circle position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            <div class="search-input ps-5">
+                                <h5><i class="fas fa-info-circle me-2"></i>About Alert System</h5>
+                                <p class="mb-0">Send automated alerts to students, faculty, or parents about attendance issues and important notifications.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="fas fa-question-circle me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <button class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-history me-1"></i>Alert History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alert Form -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Alert Configuration</h5>
+                </div>
+                <div class="admin-card-body p-4">
+                    <form method="post" id="alert-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Alert Type</label>
+                            <select class="form-select" name="alert_type">
+                                <option value="low_attendance">Low Attendance Warning</option>
+                                <option value="class_cancellation">Class Cancellation</option>
+                                <option value="academic_performance">Academic Performance</option>
+                                <option value="custom">Custom Message</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Recipient Group</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_group" id="students_group" value="students" checked>
+                                <label class="form-check-label" for="students_group">
+                                    <i class="fas fa-user-graduate me-1"></i>Students
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_group" id="faculty_group" value="faculty">
+                                <label class="form-check-label" for="faculty_group">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>Faculty
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="recipient_group" id="parents_group" value="parents">
+                                <label class="form-check-label" for="parents_group">
+                                    <i class="fas fa-user-friends me-1"></i>Parents/Guardians
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="attendance_threshold" class="form-label">Attendance Threshold (%)</label>
+                            <input type="number" class="form-control" id="attendance_threshold" name="attendance_threshold" min="0" max="100" value="75">
+                            <div class="form-text">Send alerts to students below this attendance percentage</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="custom_message" class="form-label">Custom Message</label>
+                            <textarea class="form-control" id="custom_message" name="custom_message" rows="4" placeholder="Enter your custom message here..."></textarea>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="schedule_alert" name="schedule">
+                            <label class="form-check-label" for="schedule_alert">
+                                Schedule this alert for later
+                            </label>
+                        </div>
+                        
+                        <div class="mb-4" id="schedule_options" style="display: none;">
+                            <label for="schedule_datetime" class="form-label">Schedule Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="schedule_datetime" name="schedule_datetime">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-1"></i>Send Alerts
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Alert Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li>Low attendance warnings</li>
+                    <li>Class cancellation notifications</li>
+                    <li>Academic performance alerts</li>
+                    <li>Custom message broadcasting</li>
+                    <li>Scheduled alert delivery</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleCheckbox = document.getElementById('schedule_alert');
+    const scheduleOptions = document.getElementById('schedule_options');
+    
+    scheduleCheckbox.addEventListener('change', function() {
+        scheduleOptions.style.display = this.checked ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

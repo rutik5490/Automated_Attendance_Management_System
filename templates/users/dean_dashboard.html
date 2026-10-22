@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-tie me-2 text-success"></i>Dean Dashboard
+                </h2>
+                <div class="badge bg-success fs-6">
+                    <i class="fas fa-user-circle me-1"></i>{{ dean.name }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if dean %}
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Dean Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-user-tie fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ dean.name }}</h6>
+                                <small class="text-muted">Dean</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-success">{{ total_students }}</div>
+                                <small class="text-muted">Total Students</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-success">{{ total_attendance_records }}</div>
+                                <small class="text-muted">Attendance Records</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Institution-wide Attendance Overview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-users fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Student Statistics</h5>
+                                        <div class="h3 text-info">{{ total_students }}</div>
+                                        <p class="card-text">Total enrolled students</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-clipboard-list fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Attendance Records</h5>
+                                        <div class="h3 text-primary">{{ total_attendance_records }}</div>
+                                        <p class="card-text">Total attendance entries</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3">
+                            <i class="fas fa-chart-bar me-2"></i>Class-wise Statistics
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Students</th>
+                                        <th>Attendance Records</th>
+                                        <th>Avg. Attendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in class_stats %}
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-graduation-cap me-1"></i>
+                                            {{ stat.name }} {{ stat.year }} {{ stat.section }}
+                                        </td>
+                                        <td>{{ stat.total_students }}</td>
+                                        <td>{{ stat.total_records }}</td>
+                                        <td>
+                                            {% if stat.total_students > 0 %}
+                                                {{ stat.total_records|floatformat:0 }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <i class="fas fa-info-circle me-2"></i>No class data available
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'attendance:generate_attendance_report' %}" class="btn btn-primary rounded-pill px-4">
+                                <i class="fas fa-file-export me-1"></i>Generate Detailed Reports
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Dean profile not found!</strong> Please contact administrator.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}

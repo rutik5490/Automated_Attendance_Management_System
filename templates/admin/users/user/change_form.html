@@ -1,0 +1,235 @@
+{% extends "admin/users/user/add.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{% if add %}Add User{% else %}Change User{% endif %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+  <style>
+    /* Enhanced styling for user form */
+    .form-row {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #eee;
+      transition: all 0.3s ease;
+    }
+    
+    .form-row:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+    
+    .form-row.field-username,
+    .form-row.field-password1,
+    .form-row.field-password2 {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-left: 5px solid #667eea;
+    }
+    
+    .form-row.field-user_type,
+    .form-row.field-whatsapp_number {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-left: 5px solid #28a745;
+    }
+    
+    .form-row.field-is_staff,
+    .form-row.field-is_superuser {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-left: 5px solid #ffc107;
+    }
+    
+    .form-row label {
+      color: #495057;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="password"],
+    .form-row input[type="email"],
+    .form-row select,
+    .form-row input[type="checkbox"] {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 15px;
+      font-size: 16px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .form-row input[type="text"]:focus,
+    .form-row input[type="password"]:focus,
+    .form-row input[type="email"]:focus,
+    .form-row select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .form-row input[type="checkbox"] {
+      width: auto;
+      transform: scale(1.3);
+    }
+    
+    .form-row .help {
+      color: #6c757d;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+    }
+    
+    .submit-row {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: none;
+      margin-top: 35px;
+      display: flex;
+      justify-content: flex-start;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .submit-row input, .submit-row input.default, .submit-row a {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 15px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin: 0;
+      font-size: 16px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .submit-row input:hover, .submit-row a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-row a.closelink {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+    
+    .submit-row a.closelink:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    }
+    
+    .submit-row input.delete-link {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    
+    .submit-row input.delete-link:hover {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    }
+    
+    .errornote {
+      background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+      color: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .errorlist {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .errorlist li {
+      margin: 8px 0;
+      font-weight: 500;
+    }
+    
+    /* User type selector styling */
+    .form-row.field-user_type select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 16px 12px;
+      appearance: none;
+    }
+    
+    /* Password strength indicator */
+    #id_password1_strength {
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+    
+    #id_password1_strength div {
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .strength-weak { width: 33%; background: #dc3545; }
+    .strength-medium { width: 66%; background: #ffc107; }
+    .strength-strong { width: 100%; background: #28a745; }
+    
+    /* Checkbox styling */
+    .form-row input[type="checkbox"] + label {
+      display: inline-block;
+      margin-left: 10px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    /* Header styling */
+    .breadcrumbs {
+      background: white;
+      padding: 18px 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .form-row {
+        padding: 20px;
+      }
+      
+      .form-row input[type="text"],
+      .form-row input[type="password"],
+      .form-row input[type="email"],
+      .form-row select {
+        padding: 12px;
+        font-size: 15px;
+      }
+      
+      .submit-row {
+        flex-direction: column;
+      }
+      
+      .submit-row input, .submit-row a {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+  <div class="submit-row">
+    {% submit_row %}
+  </div>
+{% endblock %}

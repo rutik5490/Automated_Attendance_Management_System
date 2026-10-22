@@ -1,0 +1,450 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{% if add %}Add User{% else %}Change User{% endif %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    :root {
+        --primary: #667eea;
+        --primary-dark: #764ba2;
+        --secondary: #f8f9fa;
+        --dark: #212529;
+        --light: #f8f9fa;
+        --success: #28a745;
+        --info: #17a2b8;
+        --warning: #ffc107;
+        --danger: #dc3545;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding-top: 70px;
+    }
+    
+    .admin-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .admin-card-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        border: none;
+        padding: 25px;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    
+    .form-container {
+        padding: 30px;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        transform: translateY(-2px);
+    }
+    
+    .form-section-title {
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .form-row {
+        margin-bottom: 25px;
+    }
+    
+    .form-row label {
+        color: #495057;
+        font-weight: 700;
+        margin-bottom: 12px;
+        font-size: 16px;
+        display: block;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="password"],
+    .form-row input[type="email"],
+    .form-row select,
+    .form-row textarea {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .form-row input[type="text"]:focus,
+    .form-row input[type="password"]:focus,
+    .form-row input[type="email"]:focus,
+    .form-row select:focus,
+    .form-row textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .form-row input[type="checkbox"] {
+        width: auto;
+        transform: scale(1.3);
+        margin-right: 10px;
+    }
+    
+    .form-row .help {
+        color: #6c757d;
+        font-size: 14px;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 3px solid var(--primary);
+    }
+    
+    .submit-row {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-top: 35px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .submit-row input, .submit-row input.default, .submit-row a {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0;
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .submit-row input:hover, .submit-row a:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-row a.closelink {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+    
+    .submit-row a.closelink:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    }
+    
+    .submit-row input.delete-link {
+        background: linear-gradient(135deg, var(--danger) 0%, #c82333 100%);
+    }
+    
+    .submit-row input.delete-link:hover {
+        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    }
+    
+    .errornote {
+        background: linear-gradient(135deg, var(--danger) 0%, #bd2130 100%);
+        color: white;
+        padding: 20px 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .errorlist {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .errorlist li {
+        margin: 8px 0;
+        font-weight: 500;
+    }
+    
+    .checkbox-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .checkbox-row label {
+        margin-bottom: 0;
+        font-weight: 500;
+        cursor: pointer;
+    }
+    
+    .breadcrumbs {
+        background: white;
+        padding: 18px 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 20px;
+        }
+        
+        .form-section {
+            padding: 20px;
+        }
+        
+        .form-row input[type="text"],
+        .form-row input[type="password"],
+        .form-row input[type="email"],
+        .form-row select,
+        .form-row textarea {
+            padding: 12px;
+            font-size: 15px;
+        }
+        
+        .submit-row {
+            flex-direction: column;
+        }
+        
+        .submit-row input, .submit-row a {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            {% if add %}
+                <i class="fas fa-user-plus me-2"></i>Add User
+            {% else %}
+                <i class="fas fa-user-edit me-2"></i>Change User
+            {% endif %}
+        </h2>
+        <a href="{% url 'admin:users_user_changelist' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>
+                    {% if add %}
+                        <i class="fas fa-user-plus me-2"></i>User Information
+                    {% else %}
+                        <i class="fas fa-user-edit me-2"></i>Edit User
+                    {% endif %}
+                </span>
+                {% if not add %}
+                <form method="post" action="{% url 'admin:users_user_delete' original.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">
+                        <i class="fas fa-trash me-1"></i>Delete User
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-container">
+            {% if errors %}
+                <div class="errornote">
+                    <strong>Please correct the errors below.</strong>
+                </div>
+                {{ adminform.form.non_field_errors }}
+            {% endif %}
+            
+            <form method="post" id="{{ opts.model_name }}_form" novalidate>
+                {% csrf_token %}
+                <div class="form-section">
+                    <h4 class="form-section-title"><i class="fas fa-user me-2"></i>Account Information</h4>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.username.id_for_label }}">{{ adminform.username.label }}{% if adminform.username.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.username }}
+                        {% if adminform.username.help_text %}
+                            <div class="help">{{ adminform.username.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.username.errors %}
+                            <div class="errorlist">{{ adminform.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.email.id_for_label }}">{{ adminform.email.label }}{% if adminform.email.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.email }}
+                        {% if adminform.email.help_text %}
+                            <div class="help">{{ adminform.email.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.email.errors %}
+                            <div class="errorlist">{{ adminform.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.first_name.id_for_label }}">{{ adminform.first_name.label }}{% if adminform.first_name.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.first_name }}
+                        {% if adminform.first_name.help_text %}
+                            <div class="help">{{ adminform.first_name.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.first_name.errors %}
+                            <div class="errorlist">{{ adminform.first_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.last_name.id_for_label }}">{{ adminform.last_name.label }}{% if adminform.last_name.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.last_name }}
+                        {% if adminform.last_name.help_text %}
+                            <div class="help">{{ adminform.last_name.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.last_name.errors %}
+                            <div class="errorlist">{{ adminform.last_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4 class="form-section-title"><i class="fas fa-lock me-2"></i>Password</h4>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.password1.id_for_label }}">{{ adminform.password1.label }}{% if adminform.password1.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.password1 }}
+                        {% if adminform.password1.help_text %}
+                            <div class="help">{{ adminform.password1.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.password1.errors %}
+                            <div class="errorlist">{{ adminform.password1.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.password2.id_for_label }}">{{ adminform.password2.label }}{% if adminform.password2.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.password2 }}
+                        {% if adminform.password2.help_text %}
+                            <div class="help">{{ adminform.password2.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.password2.errors %}
+                            <div class="errorlist">{{ adminform.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4 class="form-section-title"><i class="fas fa-user-tag me-2"></i>Role & Permissions</h4>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.user_type.id_for_label }}">{{ adminform.user_type.label }}{% if adminform.user_type.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.user_type }}
+                        {% if adminform.user_type.help_text %}
+                            <div class="help">{{ adminform.user_type.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.user_type.errors %}
+                            <div class="errorlist">{{ adminform.user_type.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="{{ adminform.whatsapp_number.id_for_label }}">{{ adminform.whatsapp_number.label }}{% if adminform.whatsapp_number.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+                        {{ adminform.whatsapp_number }}
+                        {% if adminform.whatsapp_number.help_text %}
+                            <div class="help">{{ adminform.whatsapp_number.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.whatsapp_number.errors %}
+                            <div class="errorlist">{{ adminform.whatsapp_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-row">
+                            {{ adminform.is_active }}
+                            <label for="{{ adminform.is_active.id_for_label }}">{{ adminform.is_active.label }}</label>
+                        </div>
+                        {% if adminform.is_active.help_text %}
+                            <div class="help">{{ adminform.is_active.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.is_active.errors %}
+                            <div class="errorlist">{{ adminform.is_active.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-row">
+                            {{ adminform.is_staff }}
+                            <label for="{{ adminform.is_staff.id_for_label }}">{{ adminform.is_staff.label }}</label>
+                        </div>
+                        {% if adminform.is_staff.help_text %}
+                            <div class="help">{{ adminform.is_staff.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.is_staff.errors %}
+                            <div class="errorlist">{{ adminform.is_staff.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-row">
+                            {{ adminform.is_superuser }}
+                            <label for="{{ adminform.is_superuser.id_for_label }}">{{ adminform.is_superuser.label }}</label>
+                        </div>
+                        {% if adminform.is_superuser.help_text %}
+                            <div class="help">{{ adminform.is_superuser.help_text }}</div>
+                        {% endif %}
+                        {% if adminform.is_superuser.errors %}
+                            <div class="errorlist">{{ adminform.is_superuser.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="submit-row">
+                    <input type="submit" value="{% if add %}Save User{% else %}Save Changes{% endif %}" class="default" name="_save">
+                    {% if not add %}
+                        <input type="submit" value="Save and Continue Editing" name="_continue">
+                    {% endif %}
+                    <a href="{% url 'admin:users_user_changelist' %}" class="closelink">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

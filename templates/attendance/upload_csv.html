@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>Upload Attendance CSV</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="csv_file" class="form-label">Select CSV File</label>
+                        <input type="file" class="form-control" id="csv_file" name="csv_file" accept=".csv" required>
+                        <div class="form-text">CSV file should contain columns: Date, Roll No, Status</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <a href="{% url 'faculty_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+                
+                <div class="mt-4">
+                    <h5>CSV Format Example:</h5>
+                    <pre>
+Date,Roll No,Status
+2025-10-01,101,P
+2025-10-01,102,A
+2025-10-01,103,P
+                    </pre>
+                    <p><strong>Note:</strong> Status should be 'P' for Present or 'A' for Absent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,332 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}Bulk Import Users{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    :root {
+        --primary: #667eea;
+        --primary-dark: #764ba2;
+        --secondary: #f8f9fa;
+        --dark: #212529;
+        --light: #f8f9fa;
+        --success: #28a745;
+        --info: #17a2b8;
+        --warning: #ffc107;
+        --danger: #dc3545;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding-top: 70px;
+    }
+    
+    .admin-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .admin-card-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border-radius: 15px 15px 0 0 !important;
+        border: none;
+        padding: 25px;
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+    
+    .form-container {
+        padding: 30px;
+    }
+    
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #eee;
+        transition: all 0.3s ease;
+    }
+    
+    .form-row {
+        margin-bottom: 25px;
+    }
+    
+    .form-row label {
+        color: #495057;
+        font-weight: 700;
+        margin-bottom: 12px;
+        font-size: 16px;
+        display: block;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="file"],
+    .form-row select {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .form-row input[type="file"] {
+        padding: 10px 15px;
+    }
+    
+    .form-row input[type="text"]:focus,
+    .form-row input[type="file"]:focus,
+    .form-row select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .submit-row {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-top: 35px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .submit-row input, .submit-row input.default, .submit-row a, .submit-row button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 15px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0;
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .submit-row input:hover, .submit-row a:hover, .submit-row button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-row a.closelink {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+    
+    .submit-row a.closelink:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    }
+    
+    .example-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-top: 20px;
+    }
+    
+    .example-table thead th {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #495057;
+        font-weight: 700;
+        padding: 15px;
+        border-bottom: 3px solid #dee2e6;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+    }
+    
+    .example-table tbody td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+    }
+    
+    .help-text {
+        background: #f8f9fa;
+        border-left: 4px solid var(--primary);
+        padding: 15px;
+        border-radius: 0 8px 8px 0;
+        margin: 15px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-file-import me-2"></i>Bulk Import Users
+        </h2>
+        <a href="{% url 'admin:users_user_changelist' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Users
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-file-import me-2"></i>Import Users from CSV</span>
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <h4 class="form-section-title"><i class="fas fa-cog me-2"></i>Import Configuration</h4>
+                    
+                    <div class="form-row">
+                        <label for="user_type">User Type <span class="text-danger">*</span></label>
+                        <select name="user_type" id="user_type" required>
+                            <option value="">Select User Type</option>
+                            <option value="student">Student</option>
+                            <option value="faculty">Faculty</option>
+                            <option value="dean">Dean</option>
+                        </select>
+                        <div class="help-text">
+                            <i class="fas fa-info-circle me-1"></i>Select the type of users you want to import
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="csv_file">CSV File <span class="text-danger">*</span></label>
+                        <input type="file" name="csv_file" id="csv_file" accept=".csv" required>
+                        <div class="help-text">
+                            <i class="fas fa-info-circle me-1"></i>Upload a CSV file with user data
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h4 class="form-section-title"><i class="fas fa-table me-2"></i>CSV Format Examples</h4>
+                    
+                    <h5 class="mt-4"><i class="fas fa-user-graduate me-2 text-info"></i>Student CSV Format</h5>
+                    <div class="table-responsive">
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>username</th>
+                                    <th>email</th>
+                                    <th>first_name</th>
+                                    <th>last_name</th>
+                                    <th>whatsapp_number</th>
+                                    <th>roll_no</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>student001</td>
+                                    <td>student001@university.edu</td>
+                                    <td>John</td>
+                                    <td>Smith</td>
+                                    <td>+1234567890</td>
+                                    <td>1234</td>
+                                </tr>
+                                <tr>
+                                    <td>student002</td>
+                                    <td>student002@university.edu</td>
+                                    <td>Jane</td>
+                                    <td>Johnson</td>
+                                    <td>+1234567891</td>
+                                    <td>1235</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h5 class="mt-4"><i class="fas fa-chalkboard-teacher me-2 text-success"></i>Faculty CSV Format</h5>
+                    <div class="table-responsive">
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>username</th>
+                                    <th>email</th>
+                                    <th>first_name</th>
+                                    <th>last_name</th>
+                                    <th>whatsapp_number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>faculty01</td>
+                                    <td>faculty01@university.edu</td>
+                                    <td>Michael</td>
+                                    <td>Brown</td>
+                                    <td>+1234567892</td>
+                                </tr>
+                                <tr>
+                                    <td>faculty02</td>
+                                    <td>faculty02@university.edu</td>
+                                    <td>Sarah</td>
+                                    <td>Davis</td>
+                                    <td>+1234567893</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <h5 class="mt-4"><i class="fas fa-user-tie me-2 text-warning"></i>Dean CSV Format</h5>
+                    <div class="table-responsive">
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>username</th>
+                                    <th>email</th>
+                                    <th>first_name</th>
+                                    <th>last_name</th>
+                                    <th>whatsapp_number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>dean01</td>
+                                    <td>dean01@university.edu</td>
+                                    <td>Robert</td>
+                                    <td>Wilson</td>
+                                    <td>+1234567894</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="submit-row">
+                    <button type="submit" class="default">
+                        <i class="fas fa-file-import me-1"></i>Import Users
+                    </button>
+                    <a href="{% url 'admin:users_user_changelist' %}" class="closelink">
+                        <i class="fas fa-times me-1"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

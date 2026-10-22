@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Student Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    {% if student %}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-user me-2"></i>Student Information</h5>
+                                <p><strong>Name:</strong> {{ student.name }}</p>
+                                <p><strong>Roll Number:</strong> {{ student.roll_no }}</p>
+                                <p><strong>Username:</strong> {{ user.username }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-chart-line me-2"></i>Attendance Status</h5>
+                                {% if attendance_percentage %}
+                                    <div class="text-center">
+                                        <div class="progress mb-3" style="height: 30px;">
+                                            <div class="progress-bar 
+                                                {% if attendance_percentage >= 85 %}bg-success
+                                                {% elif attendance_percentage >= 75 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                role="progressbar" 
+                                                style="width: {{ attendance_percentage }}%" 
+                                                aria-valuenow="{{ attendance_percentage }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                                {{ attendance_percentage }}%
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            {% if low_attendance %}
+                                                <div class="alert alert-danger">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    <strong>Warning!</strong> Your attendance is below {{ min_attendance }}%.
+                                                </div>
+                                            {% elif attendance_percentage < 85 %}
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    <strong>Notice:</strong> Your attendance is good but can be improved.
+                                                </div>
+                                            {% else %}
+                                                <div class="alert alert-success">
+                                                    <i class="fas fa-check-circle me-2"></i>
+                                                    <strong>Great!</strong> Your attendance is excellent.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No attendance records found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><i class="fas fa-info-circle me-2"></i>Attendance Guidelines</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                        <strong>Below {{ min_attendance }}%:</strong> Academic warning and potential consequences
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-info-circle text-warning me-2"></i>
+                                        <strong>{{ min_attendance }}% - 85%:</strong> Good attendance, but room for improvement
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <strong>Above 85%:</strong> Excellent attendance record
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Student profile not found. Please contact administrator.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

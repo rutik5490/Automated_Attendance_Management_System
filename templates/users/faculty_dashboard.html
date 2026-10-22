@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>Faculty Dashboard
+                </h2>
+                <div class="badge bg-primary fs-6">
+                    <i class="fas fa-user-circle me-1"></i>{{ faculty.name }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if faculty %}
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Faculty Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chalkboard-teacher fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ faculty.name }}</h6>
+                                <small class="text-muted">Faculty Member</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-primary">-</div>
+                                <small class="text-muted">Classes</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-primary">-</div>
+                                <small class="text-muted">Students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-tasks me-2"></i>Attendance Management
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-file-csv fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Upload CSV</h5>
+                                        <p class="card-text">Import attendance data from CSV files</p>
+                                        <a href="{% url 'attendance:upload_attendance_csv' %}" class="btn btn-primary rounded-pill">
+                                            <i class="fas fa-upload me-1"></i>Upload
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-chart-bar fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Generate Reports</h5>
+                                        <p class="card-text">Create detailed attendance reports</p>
+                                        <a href="{% url 'attendance:generate_attendance_report' %}" class="btn btn-success rounded-pill">
+                                            <i class="fas fa-file-export me-1"></i>Generate
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-comments fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Send Messages</h5>
+                                        <p class="card-text">Communicate with students via WhatsApp</p>
+                                        <a href="#" class="btn btn-info rounded-pill">
+                                            <i class="fas fa-paper-plane me-1"></i>Send
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center">
+                                        <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 70px; height: 70px;">
+                                            <i class="fas fa-sync fa-2x"></i>
+                                        </div>
+                                        <h5 class="card-title">Sync Data</h5>
+                                        <p class="card-text">Synchronize with external databases</p>
+                                        <a href="#" class="btn btn-warning rounded-pill">
+                                            <i class="fas fa-sync-alt me-1"></i>Sync
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Faculty profile not found!</strong> Please contact administrator.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}

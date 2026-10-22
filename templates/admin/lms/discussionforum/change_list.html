@@ -1,0 +1,586 @@
+{% load i18n admin_urls static admin_list %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LMS Discussion Forums | Attendance Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #764ba2;
+            --secondary: #f8f9fa;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 70px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .admin-sidebar {
+            background: white;
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
+            height: calc(100vh - 70px);
+            position: fixed;
+            width: 250px;
+            top: 70px;
+            left: 0;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-nav li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-nav a {
+            display: block;
+            padding: 15px 20px;
+            color: #495057;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: #e9ecef;
+            border-left: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .sidebar-nav a i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .admin-main {
+            margin-left: 250px;
+            padding: 20px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .admin-card-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border: none;
+            padding: 25px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+        }
+        
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .search-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+        
+        .search-input {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-outline-danger {
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            border-radius: 8px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .forum-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .forum-table thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #495057;
+            font-weight: 700;
+            padding: 20px 15px;
+            border-bottom: 3px solid #dee2e6;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        
+        .forum-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .forum-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .forum-table tbody td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-active {
+            background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+            color: white;
+        }
+        
+        .badge-inactive {
+            background: linear-gradient(135deg, var(--danger) 0%, #bd2130 100%);
+            color: white;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .page-link {
+            background: white;
+            color: var(--primary);
+            padding: 12px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 1px solid #dee2e6;
+        }
+        
+        .page-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .page-item.active .page-link {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .admin-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .admin-main {
+                margin-left: 0;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-white sidebar-toggle d-lg-none me-3" type="button">
+                        <i class="fas fa-bars fa-lg"></i>
+                    </button>
+                    <h1 class="h4 mb-0">
+                        <i class="fas fa-comments me-2"></i>Attendance Management System
+                    </h1>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <a class="btn btn-link text-white position-relative" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                        </a>
+                    </div>
+                    <div class="dropdown">
+                        <a class="btn btn-link text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle fa-lg me-1"></i>
+                            Admin User
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-lg-2 d-lg-block admin-sidebar">
+                <ul class="sidebar-nav">
+                    <li><a href="/admin/"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li class="mt-4"><span class="px-3 text-muted small fw-bold">USER MANAGEMENT</span></li>
+                    <li><a href="/admin/users/user/"><i class="fas fa-users"></i> All Users</a></li>
+                    <li><a href="/admin/users/faculty/"><i class="fas fa-chalkboard-teacher"></i> Faculty</a></li>
+                    <li><a href="/admin/users/dean/"><i class="fas fa-user-tie"></i> Dean</a></li>
+                    <li><a href="/admin/users/student/"><i class="fas fa-user-graduate"></i> Students</a></li>
+                    <li class="mt-4"><span class="px-3 text-muted small fw-bold">ATTENDANCE</span></li>
+                    <li><a href="/admin/attendance/class/"><i class="fas fa-school"></i> Classes</a></li>
+                    <li><a href="/admin/attendance/subject/"><i class="fas fa-book"></i> Subjects</a></li>
+                    <li><a href="/admin/attendance/studentenrollment/"><i class="fas fa-user-plus"></i> Enrollments</a></li>
+                    <li><a href="/admin/attendance/attendancerecord/"><i class="fas fa-clipboard-list"></i> Records</a></li>
+                    <li class="mt-4"><span class="px-3 text-muted small fw-bold">ERP SYSTEM</span></li>
+                    <li><a href="/admin/erp/department/"><i class="fas fa-building"></i> Departments</a></li>
+                    <li><a href="/admin/erp/course/"><i class="fas fa-graduation-cap"></i> Courses</a></li>
+                    <li><a href="/admin/erp/semester/"><i class="fas fa-calendar-alt"></i> Semesters</a></li>
+                    <li><a href="/admin/erp/classroom/"><i class="fas fa-door-open"></i> Classrooms</a></li>
+                    <li><a href="/admin/erp/schedule/"><i class="fas fa-clock"></i> Schedules</a></li>
+                    <li><a href="/admin/erp/enrollment/"><i class="fas fa-book-open"></i> Enrollments</a></li>
+                    <li><a href="/admin/erp/resource/"><i class="fas fa-boxes"></i> Resources</a></li>
+                    <li><a href="/admin/erp/resourcebooking/"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                    <li class="mt-4"><span class="px-3 text-muted small fw-bold">LMS</span></li>
+                    <li><a href="/admin/lms/module/"><i class="fas fa-book"></i> Modules</a></li>
+                    <li><a href="/admin/lms/lesson/"><i class="fas fa-book-reader"></i> Lessons</a></li>
+                    <li><a href="/admin/lms/assignment/"><i class="fas fa-tasks"></i> Assignments</a></li>
+                    <li><a href="/admin/lms/quiz/"><i class="fas fa-question-circle"></i> Quizzes</a></li>
+                    <li><a href="/admin/lms/discussionforum/" class="active"><i class="fas fa-comments"></i> Discussion Forums</a></li>
+                    <li class="mt-4"><span class="px-3 text-muted small fw-bold">NOTIFICATIONS</span></li>
+                    <li><a href="/admin/notifications/whatsappmessage/"><i class="fas fa-comments"></i> WhatsApp Messages</a></li>
+                </ul>
+            </nav>
+
+            <main class="col-lg-10 ms-lg-auto admin-main">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-comments me-2"></i>LMS Discussion Forum Management</span>
+                            <a href="{% url 'admin:lms_discussionforum_add' %}" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-1"></i>Add New Forum
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <!-- Statistics Cards -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-primary text-white">
+                                        <i class="fas fa-comments"></i>
+                                    </div>
+                                    <div class="stat-number">{{ cl.result_count }}</div>
+                                    <div class="stat-label">Total Forums</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-success text-white">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-number">{{ active_forums.count|default:0 }}</div>
+                                    <div class="stat-label">Active Forums</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <div class="stat-icon bg-info text-white">
+                                        <i class="fas fa-graduation-cap"></i>
+                                    </div>
+                                    <div class="stat-number">{{ courses.count|default:0 }}</div>
+                                    <div class="stat-label">Courses</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Bar -->
+                        <div class="search-bar">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <div class="position-relative">
+                                        <i class="fas fa-search position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                                        <form id="changelist-search" method="get">
+                                            <input type="text" name="{{ search_var }}" value="{{ cl.query }}" class="search-input ps-5" placeholder="Search forums by title or course...">
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary w-100" onclick="document.getElementById('changelist-search').submit()">
+                                        <i class="fas fa-search me-2"></i>Search Forums
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between mb-4">
+                            <div>
+                                <button class="btn btn-outline-primary me-2" onclick="window.print()">
+                                    <i class="fas fa-print me-1"></i>Print
+                                </button>
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-file-export me-1"></i>Export
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Forum Table -->
+                        <div class="table-responsive">
+                            <table class="forum-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Course</th>
+                                        <th>Created By</th>
+                                        <th>Created At</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for forum in cl.result_list %}
+                                    <tr>
+                                        <td>{{ forum.title }}</td>
+                                        <td>{{ forum.course }}</td>
+                                        <td>{{ forum.created_by }}</td>
+                                        <td>{{ forum.created_at|date:"M d, Y H:i" }}</td>
+                                        <td>
+                                            {% if forum.is_active %}
+                                                <span class="status-badge badge-active">Active</span>
+                                            {% else %}
+                                                <span class="status-badge badge-inactive">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'admin:lms_discussionforum_change' forum.pk %}" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'admin:lms_discussionforum_delete' forum.pk %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-5">
+                                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                            <h4 class="text-muted">No discussion forums found</h4>
+                                            <p class="text-muted">Try adjusting your search or add a new forum</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        {% if cl.page_num %}
+                        <div class="pagination">
+                            {% if cl.page_num > 1 %}
+                                <a href="?p={{ cl.page_num|add:'-1' }}" class="page-link">&laquo; Previous</a>
+                            {% else %}
+                                <span class="page-link disabled">&laquo; Previous</span>
+                            {% endif %}
+                            
+                            {% for i in cl.paginator.page_range %}
+                                {% if i <= cl.page_num|add:'3' and i >= cl.page_num|add:'-3' %}
+                                    {% if i == cl.page_num %}
+                                        <a href="?p={{ i }}" class="page-link active">{{ i }}</a>
+                                    {% else %}
+                                        <a href="?p={{ i }}" class="page-link">{{ i }}</a>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if cl.page_num < cl.paginator.num_pages %}
+                                <a href="?p={{ cl.page_num|add:'1' }}" class="page-link">Next &raquo;</a>
+                            {% else %}
+                                <span class="page-link disabled">Next &raquo;</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle for mobile
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const sidebar = document.querySelector('.admin-sidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+            }
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const isClickInsideSidebar = sidebar.contains(event.target);
+                const isClickOnToggle = sidebarToggle && sidebarToggle.contains(event.target);
+                
+                if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth < 992) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

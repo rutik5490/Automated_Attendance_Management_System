@@ -1,0 +1,378 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Database Backup{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .search-bar {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+    
+    .search-input {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 8px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .admin-card-body {
+        padding: 1.5rem;
+    }
+    
+    .backup-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .backup-table thead th {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        color: #495057;
+        font-weight: 700;
+        padding: 20px 15px;
+        border-bottom: 3px solid #dee2e6;
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+    }
+    
+    .backup-table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .backup-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .backup-table tbody td {
+        padding: 18px 15px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-database me-2"></i>Database Backup</h2>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-save me-2"></i>Database Backup Management</span>
+                <button type="submit" class="btn btn-success" form="backup-form">
+                    <i class="fas fa-save me-1"></i>Create Backup
+                </button>
+            </div>
+        </div>
+        <div class="p-4">
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary text-white">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Last Backup</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success text-white">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Successful Backups</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-info text-white">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Total Backups</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <i class="fas fa-info-circle position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            <div class="search-input ps-5">
+                                <h5><i class="fas fa-info-circle me-2"></i>About Database Backup</h5>
+                                <p class="mb-0">Create and manage backups of your attendance system database to prevent data loss.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="fas fa-question-circle me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <button class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i>Export Log
+                    </button>
+                </div>
+            </div>
+
+            <!-- Backup Form -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Backup Configuration</h5>
+                </div>
+                <div class="admin-card-body p-4">
+                    <form method="post" id="backup-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Backup Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="backup_type" id="full_backup" value="full" checked>
+                                <label class="form-check-label" for="full_backup">
+                                    <i class="fas fa-database me-1"></i>Full Backup
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="backup_type" id="incremental_backup" value="incremental">
+                                <label class="form-check-label" for="incremental_backup">
+                                    <i class="fas fa-history me-1"></i>Incremental Backup
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Backup Destination</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="destination" id="local_storage" value="local" checked>
+                                <label class="form-check-label" for="local_storage">
+                                    <i class="fas fa-hdd me-1"></i>Local Storage
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="destination" id="cloud_storage" value="cloud">
+                                <label class="form-check-label" for="cloud_storage">
+                                    <i class="fas fa-cloud me-1"></i>Cloud Storage
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="destination" id="external_drive" value="external">
+                                <label class="form-check-label" for="external_drive">
+                                    <i class="fas fa-usb me-1"></i>External Drive
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="backup_name" class="form-label">Backup Name</label>
+                            <input type="text" class="form-control" id="backup_name" name="backup_name" placeholder="Enter a name for this backup">
+                            <div class="form-text">Optional name to identify this backup</div>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="encrypt_backup" name="encrypt" checked>
+                            <label class="form-check-label" for="encrypt_backup">
+                                Encrypt backup file
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="schedule_backup" name="schedule">
+                            <label class="form-check-label" for="schedule_backup">
+                                Schedule regular backups
+                            </label>
+                        </div>
+                        
+                        <div class="mb-4" id="schedule_options" style="display: none;">
+                            <label class="form-label fw-bold">Schedule Frequency</label>
+                            <select class="form-select" name="frequency">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-1"></i>Create Backup
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Backup History -->
+    <div class="admin-card mt-4">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Backup History</span>
+                <button class="btn btn-outline-primary">
+                    <i class="fas fa-sync me-1"></i>Refresh
+                </button>
+            </div>
+        </div>
+        <div class="admin-card-body p-4">
+            <div class="table-responsive">
+                <table class="backup-table">
+                    <thead>
+                        <tr>
+                            <th>Backup Name</th>
+                            <th>Date & Time</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                <h4 class="text-muted">No backup history available</h4>
+                                <p class="text-muted">Create your first backup to see history</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-4">
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1">Previous</a>
+                        </li>
+                        <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Backup Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li>Full database backup</li>
+                    <li>Incremental backups</li>
+                    <li>Automated backup scheduling</li>
+                    <li>Backup restoration</li>
+                    <li>Encryption support</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleCheckbox = document.getElementById('schedule_backup');
+    const scheduleOptions = document.getElementById('schedule_options');
+    
+    scheduleCheckbox.addEventListener('change', function() {
+        scheduleOptions.style.display = this.checked ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

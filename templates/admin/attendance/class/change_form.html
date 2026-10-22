@@ -1,0 +1,326 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{% if add %}Add Class{% else %}Change Class{% endif %}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+  <style>
+    /* Enhanced styling for class form */
+    .form-row {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #eee;
+      transition: all 0.3s ease;
+    }
+    
+    .form-row:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+    
+    .form-row.field-name {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-left: 5px solid #667eea;
+    }
+    
+    .form-row.field-year,
+    .form-row.field-section {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-left: 5px solid #28a745;
+    }
+    
+    .form-row label {
+      color: #495057;
+      font-weight: 700;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    
+    .form-row input[type="text"],
+    .form-row input[type="number"],
+    .form-row select {
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      padding: 15px;
+      font-size: 16px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    
+    .form-row input[type="text"]:focus,
+    .form-row input[type="number"]:focus,
+    .form-row select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .form-row .help {
+      color: #6c757d;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+    }
+    
+    .submit-row {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: none;
+      margin-top: 35px;
+      display: flex;
+      justify-content: flex-start;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .submit-row input, .submit-row input.default, .submit-row a {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 15px 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin: 0;
+      font-size: 16px;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .submit-row input:hover, .submit-row a:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-row a.closelink {
+      background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+    
+    .submit-row a.closelink:hover {
+      background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    }
+    
+    .submit-row input.delete-link {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    
+    .submit-row input.delete-link:hover {
+      background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    }
+    
+    .errornote {
+      background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+      color: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+    
+    .errorlist {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin: 15px 0;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .errorlist li {
+      margin: 8px 0;
+      font-weight: 500;
+    }
+    
+    /* Header styling */
+    .breadcrumbs {
+      background: white;
+      padding: 18px 25px;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .breadcrumbs a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .breadcrumbs a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+    
+    /* Form header */
+    h1 {
+      color: #495057;
+      font-weight: 700;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #667eea;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .form-row {
+        padding: 20px;
+      }
+      
+      .submit-row {
+        flex-direction: column;
+      }
+      
+      .submit-row input, .submit-row a {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0">
+                        <i class="fas fa-school me-2"></i>
+                        {% if add %}
+                            Add New Class
+                        {% else %}
+                            Edit Class
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    {% if errors %}
+                        <div class="alert alert-danger">
+                            <strong>Please correct the following errors:</strong>
+                            <ul>
+                                {% for error in adminform.form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                    
+                    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="{{ form_url }}" method="post" id="{{ opts.model_name }}_form" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if is_popup %}
+                            <input type="hidden" name="{{ is_popup_var }}" value="1">
+                        {% endif %}
+                        
+                        {% if to_field %}
+                            <input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}">
+                        {% endif %}
+                        
+                        {% if save_on_top %}
+                            {% block submit_buttons_top %}{% submit_row %}{% endblock %}
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            {% if adminform.form.non_field_errors %}
+                                <div class="alert alert-danger">
+                                    {% for error in adminform.form.non_field_errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% for fieldset in adminform %}
+                                {% for line in fieldset %}
+                                    {% for field in line %}
+                                        <div class="form-row field-{{ field.field.name }}">
+                                            <label for="{{ field.field.id_for_label }}">
+                                                {{ field.field.label }}
+                                                {% if field.field.field.required %}
+                                                    <span class="text-danger">*</span>
+                                                {% endif %}
+                                            </label>
+                                            
+                                            {{ field.field }}
+                                            
+                                            {% if field.field.help_text %}
+                                                <div class="help">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    {{ field.field.help_text }}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if field.errors %}
+                                                <div class="errorlist">
+                                                    {% for error in field.errors %}
+                                                        <div>{{ error }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                        
+                        {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add focus effects to form fields
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+    
+    // Form validation feedback
+    const form = document.getElementById('{{ opts.model_name }}_form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first error
+                const firstError = form.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

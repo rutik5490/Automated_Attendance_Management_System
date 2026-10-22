@@ -1,0 +1,285 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Generate Reports{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .search-bar {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+    
+    .search-input {
+        border-radius: 10px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        font-size: 16px;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        border-radius: 8px;
+        padding: 8px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .admin-card-body {
+        padding: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0"><i class="fas fa-file-export me-2"></i>Generate Reports</h2>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-bar me-2"></i>Report Generation</span>
+                <button type="submit" class="btn btn-success" form="report-form">
+                    <i class="fas fa-file-export me-1"></i>Generate Report
+                </button>
+            </div>
+        </div>
+        <div class="p-4">
+            <!-- Statistics Cards -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-primary text-white">
+                            <i class="fas fa-file-export"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Reports Generated</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-success text-white">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Downloads</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon bg-info text-white">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-number">0</div>
+                        <div class="stat-label">Scheduled Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="position-relative">
+                            <i class="fas fa-info-circle position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            <div class="search-input ps-5">
+                                <h5><i class="fas fa-info-circle me-2"></i>About Report Generation</h5>
+                                <p class="mb-0">Generate comprehensive attendance reports in various formats for analysis and sharing.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#infoModal">
+                                <i class="fas fa-question-circle me-2"></i>View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <button class="btn btn-outline-primary me-2">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-file-export me-1"></i>Export Template
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Form -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Report Configuration</h5>
+                </div>
+                <div class="admin-card-body p-4">
+                    <form method="post" id="report-form">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Report Type</label>
+                            <select class="form-select" name="report_type">
+                                <option value="attendance_summary">Attendance Summary</option>
+                                <option value="detailed_records">Detailed Records</option>
+                                <option value="low_attendance">Low Attendance Students</option>
+                                <option value="class_statistics">Class Statistics</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Format</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="csv_format" value="csv" checked>
+                                <label class="form-check-label" for="csv_format">
+                                    <i class="fas fa-file-csv me-1"></i>CSV
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="excel_format" value="excel">
+                                <label class="form-check-label" for="excel_format">
+                                    <i class="fas fa-file-excel me-1"></i>Excel
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="format" id="pdf_format" value="pdf">
+                                <label class="form-check-label" for="pdf_format">
+                                    <i class="fas fa-file-pdf me-1"></i>PDF
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="class_filter" class="form-label">Class Filter</label>
+                            <select class="form-select" id="class_filter" name="class_filter">
+                                <option value="">All Classes</option>
+                                <option value="1">Computer Science</option>
+                                <option value="2">Mathematics</option>
+                                <option value="3">Physics</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="include_charts" name="include_charts" checked>
+                            <label class="form-check-label" for="include_charts">
+                                Include charts and visualizations
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="schedule_report" name="schedule">
+                            <label class="form-check-label" for="schedule_report">
+                                Schedule this report
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-file-export me-1"></i>Generate Report
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Report Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul>
+                    <li>Export attendance data in multiple formats</li>
+                    <li>Filter by date range, class, or student</li>
+                    <li>Schedule automated reports</li>
+                    <li>Customize report templates</li>
+                    <li>Generate visual charts and graphs</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle schedule options
+    const scheduleCheckbox = document.getElementById('schedule_report');
+    
+    scheduleCheckbox.addEventListener('change', function() {
+        // In a real implementation, this would show schedule options
+        if (this.checked) {
+            alert('Schedule options would appear here in a full implementation');
+        }
+    });
+});
+</script>
+{% endblock %}
