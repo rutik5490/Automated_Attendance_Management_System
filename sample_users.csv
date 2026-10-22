@@ -1,0 +1,9 @@
+username,email,first_name,last_name,whatsapp_number,roll_no,department
+student001,student001@university.edu,John,Smith,+1234567890,1234,Computer Science
+student002,student002@university.edu,Jane,Johnson,+1234567891,1235,Mathematics
+student003,student003@university.edu,Michael,Williams,+1234567892,1236,Physics
+student004,student004@university.edu,Sarah,Brown,+1234567893,1237,Chemistry
+student005,student005@university.edu,David,Jones,+1234567894,1238,Biology
+faculty01,faculty01@university.edu,Prof. Robert,Wilson,+1234567895,Computer Science
+faculty02,faculty02@university.edu,Prof. Jennifer,Taylor,+1234567896,Mathematics
+dean01,dean01@university.edu,Dr. Christopher,Anderson,+1234567897,Engineering
