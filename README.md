@@ -35,7 +35,7 @@ Setup Steps
 
 1. **Clone the Repository**
    ```bash
-   git clone <https://github.com/rutik5490/Automated_Attendance_Management_System.git>
+   git clone https://github.com/rutik5490/Automated_Attendance_Management_System.git
    cd Attendance_System
    ```
 
